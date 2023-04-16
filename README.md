@@ -8,7 +8,7 @@
 
 [AC3 - Extração dados Nuuvem](https://thuurzz-ac3-web-mining-impacta-script-josyxq.streamlit.app/)
 
-Como rodar o projeto:
+## Como rodar o projeto:
 
 ```
 pip install -r requirements.txt
