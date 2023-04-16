@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 
+# Integrante do trabalho
+# Arthur Vinicius Santos Silva RA:1903665
 
 # Criando dataframe a partir dos dados extraídos na AC2
 df = pd.read_csv("01_base_tratada/base_tratada.csv")
