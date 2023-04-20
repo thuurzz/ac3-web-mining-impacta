@@ -4,9 +4,10 @@ from PIL import Image
 
 # Integrante do trabalho
 # Arthur Vinicius Santos Silva RA:1903665
+# Carolina Gabrielle Castro Vieira RA:1900127
 
 # Criando dataframe a partir dos dados extraídos na AC2
-df = pd.read_csv("01_base_tratada/base_tratada.csv")
+df = pd.read_csv("1_bases_tratadas/base_tratada.csv")
 df["preco_original"] = df["preco"] / (1 - (df["porcentagem_desconto"]/100))
 df["preco_original"] = round(df["preco_original"], 2)
 # -------------------------------------------------------
@@ -17,7 +18,6 @@ st.markdown(
     f"""
     <div style='text-align: center;'>
         <h1>Loja Nuuvem</h1>
-        <h4>Extração dos dados utilizados 16/04/23</h4>
     </div>
     """,
     unsafe_allow_html=True
@@ -69,8 +69,9 @@ st.divider()
 
 # Filtro para listar jogos pelo preço
 st.subheader('Encontre os jogos pela faixa de preço')
-valor_jogo_min = st.slider('Mínimo BRL$', 0, 500, 5)
-valor_jogo_max = st.slider('Máximo BRL$', 0, 500, 100)
+max = int(df['preco'].max()) + 1 
+valor_jogo_min = st.slider('Mínimo BRL$', 0, max, 5)
+valor_jogo_max = st.slider('Máximo BRL$', 0, max, 100)
 if valor_jogo_min > valor_jogo_max:
   st.error('O valor mínimo, não pode ser maior que o máximo.', icon="🚨")
 valores_filtrados_preco = df.loc[df['preco'].between(valor_jogo_min, valor_jogo_max)].sort_values(by=['porcentagem_desconto'], ascending=False)
@@ -103,6 +104,22 @@ st.caption(f'Quantidade de itens: {len(jogos_mais_85_desconto)}')
 st.divider() 
 # -------------------------------------------------------
 
+
+#-------------------------------------------------- plotly
+st.subheader('Agrupamento de jogos por quantidade de desconto')
+
+
+
+
+
+
+
+
+
+
+
+
+
 st.markdown(
    """
     <h4 style='text-align: center;'>
@@ -114,6 +131,3 @@ st.markdown(
    """,
    unsafe_allow_html=True
 )
-
-
-
