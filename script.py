@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from PIL import Image
+import plotly.express as px
 
 # Integrante do trabalho
 # Arthur Vinicius Santos Silva RA:1903665
@@ -98,27 +99,49 @@ jogos_mais_85_desconto = jogos_mais_85_desconto.rename(columns={
     "tipo": "Tipo de Jogo",
     "preco_original": "Preço original(R$)"
     })
-
-st.dataframe(jogos_mais_85_desconto[["Nome do Jogo", "Preço original(R$)", "Preço (R$)", "Desconto (%)"]], use_container_width=True)
+fig_bar = px.bar(jogos_mais_85_desconto, x="Nome do Jogo", y="Preço (R$)", hover_data=['Preço (R$)', 'Preço original(R$)'], color='Desconto (%)',)
+st.plotly_chart(fig_bar, use_container_width=True)
 st.caption(f'Quantidade de itens: {len(jogos_mais_85_desconto)}')
 st.divider() 
 # -------------------------------------------------------
 
-
-#-------------------------------------------------- plotly
+# plotly
+# Agrupamento de jogos por quantidade de desconto
+#-------------------------------------------------- 
 st.subheader('Agrupamento de jogos por quantidade de desconto')
+categorias = pd.cut(df['porcentagem_desconto'], 
+                    bins=[-0.1, 5, 30, 50, 75, 100], 
+                    labels=['0-5%','6-30%', '31-50%', '51-75%', '76-100%'])
+df['categoria_desconto'] = categorias
+contagem_categorias = df['categoria_desconto'].value_counts()
+categoria_mais_jogos = contagem_categorias.idxmax()
 
+st.markdown(
+   f"""
+   <span>A categoria com a maior quantidade de jogos em desconto é: {categoria_mais_jogos}</span>
+   """,
+   unsafe_allow_html=True
+)
+fig = px.pie(df, values="preco", names="categoria_desconto", title='Quantidade de desconto')
+st.plotly_chart(fig, use_container_width=True)
+#-------------------------------------------------- 
 
-
-
-
-
-
-
-
-
-
-
+# Box Plot preço e outlier de valores
+#-------------------------------------------------- 
+st.subheader('Box Plot Preço (R$)')
+fig_box_plot = px.box(df["preco"])
+jogo_mais_caro = df["preco"].max()
+nome_mais_caro = df.loc[df['preco'].idxmax(), 'nome']
+st.markdown(
+   f"""
+   <span>O jogo mais caro, está custando: R$ {jogo_mais_caro}</span>
+   </br>
+   <span>O nome do jogo mais caro é: {nome_mais_caro}</span>
+   """,
+   unsafe_allow_html=True
+)
+st.plotly_chart(fig_box_plot)
+#-------------------------------------------------- 
 
 st.markdown(
    """
