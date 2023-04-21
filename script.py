@@ -33,6 +33,56 @@ st.divider()
 # -------------------------------------------------------
 
 
+# Filtra jogos pelo nome
+st.subheader('Encontre o jogo pelo nome')
+if "visibility" not in st.session_state:
+    st.session_state.visibility = "visible"
+    st.session_state.disabled = False
+
+text_input = st.text_input(
+    "Nome do jogo buscado 👇",
+    label_visibility=st.session_state.visibility,
+    disabled=st.session_state.disabled,
+    placeholder="Digite o nome do jogo",
+)
+
+if text_input:
+    df_filtrado = df[df["nome"].str.contains(text_input, case=False)]
+    df_filtrado = df_filtrado.rename(columns={
+    "nome": "Nome do Jogo",
+    "porcentagem_desconto": "Desconto (%)",
+    "preco": "Preço (R$)",
+    "tipo": "Tipo de Jogo",
+    "preco_original": "Preço original(R$)"
+    })
+    st.dataframe(df_filtrado[["Nome do Jogo", "Preço original(R$)", "Preço (R$)", "Desconto (%)"]], use_container_width=True)
+    if len(df_filtrado) == 0:
+      st.info('Jogo não encontrado!', icon="ℹ️")
+st.divider() 
+# -------------------------------------------------------
+
+
+# Filtro para listar jogos pelo preço
+st.subheader('Encontre os jogos pela faixa de preço')
+max = int(df['preco'].max()) + 1 
+valor_jogo_min = st.slider('Mínimo BRL$', 0, max, 5)
+valor_jogo_max = st.slider('Máximo BRL$', 0, max, 100)
+if valor_jogo_min > valor_jogo_max:
+  st.error('O valor mínimo, não pode ser maior que o máximo.', icon="🚨")
+valores_filtrados_preco = df.loc[df['preco'].between(valor_jogo_min, valor_jogo_max)].sort_values(by=['porcentagem_desconto'], ascending=False)
+valores_filtrados_preco = valores_filtrados_preco.rename(columns={
+    "nome": "Nome do Jogo",
+    "porcentagem_desconto": "Desconto (%)",
+    "preco": "Preço (R$)",
+    "tipo": "Tipo de Jogo",
+    "preco_original": "Preço original(R$)"
+})
+st.dataframe(valores_filtrados_preco[["Nome do Jogo", "Preço original(R$)","Preço (R$)", "Desconto (%)"]], use_container_width=True)
+st.caption(f'Quantidade de itens: {len(valores_filtrados_preco)}')
+st.divider() 
+# -------------------------------------------------------
+
+
 # Gráfico com line chart do preço dos jogos
 st.subheader('Variação do preço dos jogos')
 st.line_chart(df.preco)
@@ -89,56 +139,6 @@ fig_sc = px.scatter(
 st.plotly_chart(fig_sc, use_container_width=True)
 st.caption(f'Quantidade de itens: {len(df)}')
 st.divider()
-# -------------------------------------------------------
-
-
-# Filtra jogos pelo nome
-st.subheader('Encontre o jogo pelo nome')
-if "visibility" not in st.session_state:
-    st.session_state.visibility = "visible"
-    st.session_state.disabled = False
-
-text_input = st.text_input(
-    "Nome do jogo buscado 👇",
-    label_visibility=st.session_state.visibility,
-    disabled=st.session_state.disabled,
-    placeholder="Digite o nome do jogo",
-)
-
-if text_input:
-    df_filtrado = df[df["nome"].str.contains(text_input, case=False)]
-    df_filtrado = df_filtrado.rename(columns={
-    "nome": "Nome do Jogo",
-    "porcentagem_desconto": "Desconto (%)",
-    "preco": "Preço (R$)",
-    "tipo": "Tipo de Jogo",
-    "preco_original": "Preço original(R$)"
-    })
-    st.dataframe(df_filtrado[["Nome do Jogo", "Preço original(R$)", "Preço (R$)", "Desconto (%)"]], use_container_width=True)
-    if len(df_filtrado) == 0:
-      st.info('Jogo não encontrado!', icon="ℹ️")
-st.divider() 
-# -------------------------------------------------------
-
-
-# Filtro para listar jogos pelo preço
-st.subheader('Encontre os jogos pela faixa de preço')
-max = int(df['preco'].max()) + 1 
-valor_jogo_min = st.slider('Mínimo BRL$', 0, max, 5)
-valor_jogo_max = st.slider('Máximo BRL$', 0, max, 100)
-if valor_jogo_min > valor_jogo_max:
-  st.error('O valor mínimo, não pode ser maior que o máximo.', icon="🚨")
-valores_filtrados_preco = df.loc[df['preco'].between(valor_jogo_min, valor_jogo_max)].sort_values(by=['porcentagem_desconto'], ascending=False)
-valores_filtrados_preco = valores_filtrados_preco.rename(columns={
-    "nome": "Nome do Jogo",
-    "porcentagem_desconto": "Desconto (%)",
-    "preco": "Preço (R$)",
-    "tipo": "Tipo de Jogo",
-    "preco_original": "Preço original(R$)"
-})
-st.dataframe(valores_filtrados_preco[["Nome do Jogo", "Preço original(R$)","Preço (R$)", "Desconto (%)"]], use_container_width=True)
-st.caption(f'Quantidade de itens: {len(valores_filtrados_preco)}')
-st.divider() 
 # -------------------------------------------------------
 
 
