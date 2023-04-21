@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import plotly.express as px
+import numpy as np
+
 
 # Integrante do trabalho
 # Arthur Vinicius Santos Silva RA:1903665
@@ -18,7 +20,7 @@ col1, col2, col3 = st.columns(3)
 st.markdown(
     f"""
     <div style='text-align: center;'>
-        <h1>Loja Nuuvem</h1>
+        <h1>Extração - Loja Nuuvem</h1>
     </div>
     """,
     unsafe_allow_html=True
@@ -35,6 +37,21 @@ st.divider()
 st.subheader('Variação do preço dos jogos')
 st.line_chart(df.preco)
 st.caption(f'Quantidade de itens: {len(df)}')
+jogo_mais_caro = df['preco'].max()
+jogo_mais_barato = df['preco'].min()
+media_precos = df['preco'].mean()
+std_precos = df['preco'].std()
+df['outlier'] = np.abs(df['preco'] - media_precos) > 3 * std_precos
+qtd_outliers = df['outlier'].sum()
+st.markdown(
+    f"""
+    <span>Jogo mais caro: {jogo_mais_caro} (BRL)</span> </br>
+    <span>Jogo mais barato: {jogo_mais_barato} (BRL)</span> </br>
+    <span>Média do preço dos jogos: {media_precos:.2f} (BRL)</span> </br>
+    <span>Quantidade de outliers no preço dos jogos: {qtd_outliers}</span>
+    """,
+    unsafe_allow_html=True
+)
 st.divider() 
 # -------------------------------------------------------
 
@@ -100,6 +117,15 @@ jogos_mais_85_desconto = jogos_mais_85_desconto.rename(columns={
     "preco_original": "Preço original(R$)"
     })
 fig_bar = px.bar(jogos_mais_85_desconto, x="Nome do Jogo", y="Preço (R$)", hover_data=['Preço (R$)', 'Preço original(R$)'], color='Desconto (%)',)
+idx = df['porcentagem_desconto'].idxmax()
+jogo_maior_desconto = df.loc[idx, 'nome']
+quantidade_desconto = df.loc[idx, 'porcentagem_desconto']
+st.markdown(
+    f"""
+    <span>O jogo com o maior desconto é: "{jogo_maior_desconto}", com um desconto de {quantidade_desconto}%.</span>
+    """,
+    unsafe_allow_html=True
+)
 st.plotly_chart(fig_bar, use_container_width=True)
 st.caption(f'Quantidade de itens: {len(jogos_mais_85_desconto)}')
 st.divider() 
@@ -115,23 +141,41 @@ categorias = pd.cut(df['porcentagem_desconto'],
 df['categoria_desconto'] = categorias
 contagem_categorias = df['categoria_desconto'].value_counts()
 categoria_mais_jogos = contagem_categorias.idxmax()
-
 st.markdown(
-   f"""
-   <span>A categoria com a maior quantidade de jogos em desconto é: {categoria_mais_jogos}</span>
-   """,
-   unsafe_allow_html=True
+    f"""
+    <span>A categoria com a maior quantidade de jogos em desconto é: {categoria_mais_jogos}</span>
+    """,
+    unsafe_allow_html=True
+)
+porcentagem_desconto = st.selectbox('Selecione a porcentagem de desconto:',
+                                    ['0-5%', '6-30%', '31-50%', '51-75%', '76-100%'])
+df_filtrado = df[df['categoria_desconto'] == porcentagem_desconto]
+quantidade_jogos = len(df_filtrado)
+st.markdown(
+    f"""
+    <span>A quantidade de jogos com {porcentagem_desconto} de desconto é: {quantidade_jogos}</span>
+    """,
+    unsafe_allow_html=True
 )
 fig = px.pie(df, values="preco", names="categoria_desconto", title='Quantidade de desconto')
 st.plotly_chart(fig, use_container_width=True)
+
 #-------------------------------------------------- 
 
 # Box Plot preço e outlier de valores
 #-------------------------------------------------- 
 st.subheader('Box Plot Preço (R$)')
-fig_box_plot = px.box(df["preco"])
-jogo_mais_caro = df["preco"].max()
-nome_mais_caro = df.loc[df['preco'].idxmax(), 'nome']
+categorias = pd.cut(df['porcentagem_desconto'], 
+                    bins=[-0.1, 15, 30, 45, 60, 75, 90, 100], 
+                    labels=['0-15%', '16-30%', '31-45%', '46-60%', '61-75%', '76-90%', '91-100%'])
+df['categoria_desconto'] = categorias
+categoria_selecionada = st.selectbox("Selecione a categoria de desconto:", ['0-15%', '16-30%', '31-45%', '46-60%', '61-75%', '76-90%', '91-100%'])
+dados_filtrados = df[df['categoria_desconto'] == categoria_selecionada]
+contagem_categorias = dados_filtrados['categoria_desconto'].value_counts()
+filtro = df['categoria_desconto'] == categoria_selecionada
+df_filtrado = df[filtro]
+nome_mais_caro = df_filtrado.loc[df_filtrado['preco'].idxmax(), 'nome']
+jogo_mais_caro = df_filtrado.loc[df_filtrado['preco'].idxmax(), 'preco']
 st.markdown(
    f"""
    <span>O jogo mais caro, está custando: R$ {jogo_mais_caro}</span>
@@ -140,7 +184,8 @@ st.markdown(
    """,
    unsafe_allow_html=True
 )
-st.plotly_chart(fig_box_plot)
+fig = px.box(dados_filtrados, x='categoria_desconto', y='preco', color='tipo', title='Distribuição de preços por categoria de desconto')
+st.plotly_chart(fig)
 #-------------------------------------------------- 
 
 st.markdown(
