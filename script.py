@@ -2,10 +2,10 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 import plotly.express as px
+import plotly.figure_factory as ff
 import numpy as np
 
-
-# Integrante do trabalho
+# Integrantes
 # Arthur Vinicius Santos Silva RA:1903665
 # Carolina Gabrielle Castro Vieira RA:1900127
 
@@ -53,6 +53,42 @@ st.markdown(
     unsafe_allow_html=True
 )
 st.divider() 
+# -------------------------------------------------------
+
+
+# Distribuição dos jogos por quantidade de desconto
+st.subheader("Didstribuição de jogos por quantidade de desconto")
+
+jogos_pre_venda_com_desconto = df[(df['tipo'] == 'prevenda') & (df['porcentagem_desconto'] > 0)]
+tipo_selecionado = st.selectbox('Selecione um tipo', options=['todos', 'padrao', 'pacote', 'prevenda'])
+if tipo_selecionado == 'todos':
+    df_filtrado = df
+else:
+    df_filtrado = df.loc[df['tipo'] == tipo_selecionado]
+jogos_prevenda_com_desconto = df_filtrado.loc[df_filtrado['porcentagem_desconto'] > 0,]
+quantidade_jogos_pre_venda_com_desconto = len(jogos_prevenda_com_desconto)
+st.write(f"Existem {quantidade_jogos_pre_venda_com_desconto} jogos do tipo: {tipo_selecionado}, com desconto.")
+jogos_prevenda_com_desconto = jogos_prevenda_com_desconto.rename(columns={
+    "nome": "Nome do Jogo",
+    "porcentagem_desconto": "Desconto (%)",
+    "preco": "Preço (R$)",
+    "tipo": "Tipo de Jogo",
+    "preco_original": "Preço original(R$)"
+    })
+st.dataframe(jogos_prevenda_com_desconto[["Nome do Jogo", "Preço original(R$)", "Preço (R$)", "Desconto (%)", "outlier"]], use_container_width=True)
+st.subheader("Distribuição Preço por Desconto")
+
+# Plotly Chart
+fig_sc = px.scatter(
+    df,
+    x="porcentagem_desconto",
+    y="preco",
+    color="tipo",
+    color_continuous_scale="reds",
+)
+st.plotly_chart(fig_sc, use_container_width=True)
+st.caption(f'Quantidade de itens: {len(df)}')
+st.divider()
 # -------------------------------------------------------
 
 
@@ -187,13 +223,17 @@ st.markdown(
 fig = px.box(dados_filtrados, x='categoria_desconto', y='preco', color='tipo', title='Distribuição de preços por categoria de desconto')
 st.plotly_chart(fig)
 #-------------------------------------------------- 
-
 st.markdown(
    """
     <h4 style='text-align: center;'>
         Designed by
+        </br>
         <a href="https://github.com/thuurzz" style='text-decoration: none;'>
             @thuurrzz
+        </a> 
+        and
+        <a href="https://github.com/carolgcastro" style='text-decoration: none;'>
+            @carolgcastro
         </a>
     </h4>
    """,
