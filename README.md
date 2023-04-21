@@ -7,6 +7,8 @@
 
 ## Link do projeto
 
+![Captura de Tela 2023-04-21 às 09 46 24](https://user-images.githubusercontent.com/53263896/233639632-52223d4e-1e92-4b61-8006-0959ea3a1547.png)
+
 [AC3 - Extração dados Nuuvem](https://thuurzz-ac3-web-mining-impacta-script-josyxq.streamlit.app/)
 
 ## Como rodar o projeto:
